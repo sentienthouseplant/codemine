@@ -8,12 +8,10 @@ def generate_context_chunks(repo_owner: str, repo_name: str):
         document = file_chunk['document']
         chunks = file_chunk['chunks']
         for chunk in chunks:
-            output = context_chunker(document, chunk.text)
-            with open(f"outputs/{repo_owner}_{repo_name}_{chunk.start}_{chunk.end}.txt", "w") as f:
-                context_chunks.append(output)
-    return context_chunks
+            output = context_chunker(document, chunk[1])
+            index = chunk[0]
+            with open(f"outputs/{repo_owner}_{repo_name}_{index}.txt", "w") as f:
+                f.write(output)
 
 if __name__ == "__main__":
-    context_chunks = generate_context_chunks("sentienthouseplant", "Millow")
-    print(context_chunks)
-
+    generate_context_chunks("sentienthouseplant", "Millow")
