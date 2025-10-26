@@ -10,7 +10,6 @@ langauge_mapping = {
 }
 
 
-
 def chunk_repository(repo_owner: str, repo_name: str) -> list[FileChunks]:
     repository_chunks = []
     with clone_repo(repo_owner, repo_name) as repo:
@@ -24,8 +23,16 @@ def chunk_repository(repo_owner: str, repo_name: str) -> list[FileChunks]:
                         file_extension = file.split(".")[-1]
                         splitter = CodeSplitter(langauge_mapping[file_extension], 500)
                         chunks = splitter.chunk_indices(code)
-                        chunks = [Chunk(index=index, text=text) for index, text in chunks]
-                        file_chunks = FileChunks(document=code, chunks=chunks, file_name=relative_path, repo_name=repo_name, repo_owner=repo_owner)
+                        chunks = [
+                            Chunk(index=index, text=text) for index, text in chunks
+                        ]
+                        file_chunks = FileChunks(
+                            document=code,
+                            chunks=chunks,
+                            file_name=relative_path,
+                            repo_name=repo_name,
+                            repo_owner=repo_owner,
+                        )
                         repository_chunks.append(file_chunks)
 
     return repository_chunks

@@ -1,8 +1,10 @@
 import pydantic
 
+
 class Chunk(pydantic.BaseModel):
     index: int
     text: str
+
 
 class FileChunks(pydantic.BaseModel):
     document: str
@@ -10,6 +12,7 @@ class FileChunks(pydantic.BaseModel):
     file_name: str
     repo_name: str
     repo_owner: str
+
 
 class AnnotatedChunk(pydantic.BaseModel):
     index: int
@@ -22,10 +25,8 @@ class AnnotatedChunk(pydantic.BaseModel):
         return f"{self.repo_owner}#{self.repo_name}#{self.file_name}#{self.index}"
 
     def pinecone_record(self):
-        return {
-            "id": self.create_id(),
-            **self.model_dump()
-        }
+        return {"id": self.create_id(), **self.model_dump()}
+
 
 class PineconeConfig(pydantic.BaseModel):
     index_name: str

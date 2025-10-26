@@ -5,8 +5,8 @@ from openai import OpenAI
 from settings import settings
 
 client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key=settings.openrouter_api_key,
+    base_url="https://openrouter.ai/api/v1",
+    api_key=settings.openrouter_api_key,
 )
 
 CONTEXT_PROMPT = Template("""
@@ -24,10 +24,22 @@ $document
 </document>
 """)
 
+
 def context_chunker(document: str, chunk: str):
     response = client.chat.completions.create(
         model="google/gemini-2.5-flash-lite-preview-09-2025",
-      messages=[{"role": "system", "content": DOCUMENT_PROMPT.substitute(document=document), "cache_control": {"type": "ephemeral"}}, {"role": "user", "content": CONTEXT_PROMPT.substitute(chunk=chunk), "cache_control": {"type": "ephemeral"}}],
+        messages=[
+            {
+                "role": "system",
+                "content": DOCUMENT_PROMPT.substitute(document=document),
+                "cache_control": {"type": "ephemeral"},
+            },
+            {
+                "role": "user",
+                "content": CONTEXT_PROMPT.substitute(chunk=chunk),
+                "cache_control": {"type": "ephemeral"},
+            },
+        ],
     )
     context = response.choices[0].message.content
     return f"""
@@ -38,5 +50,3 @@ def context_chunker(document: str, chunk: str):
     {chunk}
     </chunk>
     """
-
-
