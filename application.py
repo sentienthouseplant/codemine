@@ -1,5 +1,6 @@
+import pprint
 from splitter import chunk_repository
-from context_chunker import context_chunker
+from context_chunker import process_file_chunk
 from data_classes import AnnotatedChunk, PineconeConfig
 from embedder import RepoEmbedding
 
@@ -8,21 +9,8 @@ def generate_context_chunks(repo_owner: str, repo_name: str):
     context_chunks = []
     repository_chunks = chunk_repository(repo_owner, repo_name)
     for file_chunk in repository_chunks:
-        document = file_chunk.document
-        chunks = file_chunk.chunks
-        for chunk in chunks:
-            chunk_index = chunk.index
-            chunk_text = chunk.text
-            chunk_with_context = context_chunker(document, chunk_text)
-            context_chunks.append(
-                AnnotatedChunk(
-                    index=chunk_index,
-                    code_with_context=chunk_with_context,
-                    file_name=file_chunk.file_name,
-                    repo_name=file_chunk.repo_name,
-                    repo_owner=file_chunk.repo_owner,
-                )
-            )
+        for annotated_chunk in process_file_chunk(file_chunk):
+            context_chunks.append(annotated_chunk)
     return context_chunks
 
 
@@ -32,3 +20,4 @@ if __name__ == "__main__":
     embedder = RepoEmbedding(config=PineconeConfig)
     embedder.embed_chunks(context_chunks)
     embedder.remove_outdated_chunks(context_chunks, "sentienthouseplant", "purplepipes")
+    print(embedder.get_stats())

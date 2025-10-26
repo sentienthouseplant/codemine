@@ -10,6 +10,8 @@ class RepoEmbedding:
         self.pc = Pinecone(api_key=settings.pinecone_api_key)
         self.has_index = self.pc.has_index(self.config.index_name)
         self.index_namespace = "default"
+        self.upserted_chunks = 0
+        self.deleted_chunks = 0
 
     def _create_index(self):
         if not self.has_index:
@@ -44,6 +46,7 @@ class RepoEmbedding:
         self.index.upsert_records(
             self.index_namespace, records=[chunk.pinecone_record() for chunk in chunks]
         )
+        self.upserted_chunks += len(chunks)
 
     def get_current_files(self, repo_owner, repo_name):
         current_files = []
@@ -68,3 +71,10 @@ class RepoEmbedding:
                 self.index.delete(
                     namespace=self.index_namespace, filter={"file_name": {"$eq": file}}
                 )
+                self.deleted_chunks += 1
+
+    def get_stats(self):
+        return {
+            "upserted_chunks": self.upserted_chunks,
+            "deleted_chunks": self.deleted_chunks,
+        }

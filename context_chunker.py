@@ -4,6 +4,9 @@ from openai import OpenAI
 
 from settings import settings
 
+from data_classes import FileChunks
+from data_classes import AnnotatedChunk
+
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=settings.openrouter_api_key,
@@ -25,7 +28,7 @@ $document
 """)
 
 
-def context_chunker(document: str, chunk: str):
+def generate_chunk_with_context(document: str, chunk: str):
     response = client.chat.completions.create(
         model="google/gemini-2.5-flash-lite-preview-09-2025",
         messages=[
@@ -50,3 +53,14 @@ def context_chunker(document: str, chunk: str):
     {chunk}
     </chunk>
     """
+
+def process_file_chunk(file_chunk: FileChunks):
+    for chunk in file_chunk.chunks:
+        chunk_with_context = generate_chunk_with_context(file_chunk.document, chunk.text)
+        yield AnnotatedChunk(
+            index=chunk.index,
+            code_with_context=chunk_with_context,
+            file_name=file_chunk.file_name,
+            repo_name=file_chunk.repo_name,
+            repo_owner=file_chunk.repo_owner,
+        )
