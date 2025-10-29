@@ -11,19 +11,19 @@ class CodeChunk(pydantic.BaseModel):
 
     @property
     def id(self):
-        return f"{self.repo_owner}#{self.repo_name}#{self.file_path}#{self.index}"
+        return f"{self.repo_owner}#{self.repo_name}#{self.file_path}-test123#{self.index}"
 
     @property
     def metadata(self):
         return {
             "repo_owner": self.repo_owner,
             "repo_name": self.repo_name,
-            "file_path": self.file_path,
+            "file_path": f"{self.file_path}-test123",
             "index": self.index,
         }
 
     @property
-    def content(self):
+    def full_content(self):
         if self.context:
             return f"""
             <context>
@@ -39,6 +39,6 @@ class CodeChunk(pydantic.BaseModel):
     def generic_record(self) -> GenericRecord:
         return GenericRecord(
             id=self.id,
-            unembedded_content=self.content,
+            unembedded_content=self.full_content,
             metadata=self.metadata,
         )

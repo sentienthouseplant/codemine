@@ -3,6 +3,7 @@ from app.domain.services.code_chunking_service import CodeChunkingService
 from app.infrastructure.settings import Settings
 from openai import OpenAI
 from app.domain.services.context_enrichment_service import ContextEnrichmentService
+from app.infrastructure.pinecone_vector_store import PineconeVectorStore
 
 
 settings = Settings()
@@ -16,9 +17,18 @@ github_client = GithubGitClient()
 
 chunking_service = CodeChunkingService()
 
+enriched_documents = []
 with github_client.temporary_clone("sentienthouseplant", "purplepipes", settings) as repo:
     for document in chunking_service.walk_directory(repo):
-        chunked_document = chunking_service.chunk_document(document)
-        context_enrichment_service = ContextEnrichmentService()
-        enriched_document = context_enrichment_service.enrich_document(openai_client, chunked_document)
-        print(enriched_document.model_dump_json(indent=2))
+        print(document.file_path)
+        # chunked_document = chunking_service.chunk_document(document)
+        # context_enrichment_service = ContextEnrichmentService()
+        # enriched_document = context_enrichment_service.enrich_document(openai_client, chunked_document)
+        # enriched_documents.append(enriched_document)
+
+
+
+# pinecone_vector_store = PineconeVectorStore(index_name="code-chunks-test", settings=settings)
+# print(enriched_documents[0].model_dump_json(indent=2))
+# pinecone_vector_store.create_index_if_not_exists()
+

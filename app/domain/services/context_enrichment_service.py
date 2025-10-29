@@ -21,21 +21,32 @@ $document
 class ContextEnrichmentService:
 
     def enrich_document(self, client: OpenAI, document: ChunkedDocument) -> ChunkedDocument:
+        """
+        Enriches each chunk with context from the LLM.
+        Returns a new ChunkedDocument with new chunks that have context set.
+        """
+        enriched_chunks = []
+        
         for chunk in document.chunks:
             response = client.chat.completions.create(
                 model="google/gemini-2.5-flash-lite-preview-09-2025",
                 messages=[
-            {
-                "role": "system",
-                "content": DOCUMENT_PROMPT.substitute(document=document.content),
-                "cache_control": {"type": "ephemeral"},
-            },
-            {
-                "role": "user",
-                "content": CONTEXT_PROMPT.substitute(chunk=chunk.content),
-                "cache_control": {"type": "ephemeral"},
-            },
-        ],
-        )
-            chunk.context = response.choices[0].message.content
-        return document
+                    {
+                        "role": "system",
+                        "content": DOCUMENT_PROMPT.substitute(document=document.content),
+                        "cache_control": {"type": "ephemeral"},
+                    },
+                    {
+                        "role": "user",
+                        "content": CONTEXT_PROMPT.substitute(chunk=chunk.content),
+                        "cache_control": {"type": "ephemeral"},
+                    },
+                ],
+            )
+            
+            enriched_chunk = chunk.model_copy(
+                update={"context": response.choices[0].message.content}
+            )
+            enriched_chunks.append(enriched_chunk)
+        
+        return document.model_copy(update={"chunks": enriched_chunks})

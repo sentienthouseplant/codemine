@@ -13,7 +13,7 @@ class GenericRecord(pydantic.BaseModel):
     metadata: dict
 
 class EmbeddedRecord(GenericRecord):
-    embedded_content: list[float] | None
+    embedded_content: list[float]
 
 class GitDirectory(pydantic.BaseModel):
     path: str
