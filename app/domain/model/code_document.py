@@ -10,4 +10,6 @@ class CodeDocument(pydantic.BaseModel):
     repo_owner: str
     repo_name: str
     file_type: str
+
+class ChunkedDocument(CodeDocument):
     chunks: list[CodeChunk]

@@ -11,3 +11,11 @@ class GenericRecord(pydantic.BaseModel):
     id: str
     unembedded_content: ContextualizedContent
     metadata: dict
+
+class EmbeddedRecord(GenericRecord):
+    embedded_content: list[float] | None
+
+class GitDirectory(pydantic.BaseModel):
+    path: str
+    repo_owner: str
+    repo_name: str

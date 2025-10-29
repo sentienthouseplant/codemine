@@ -23,20 +23,22 @@ class CodeChunk(pydantic.BaseModel):
         }
 
     @property
-    def content_with_context(self):
-        return f"""
-        <context>
-        {self.context}
-        </context>
-        <chunk>
-        {self.content}
-        </chunk>
-        """
+    def content(self):
+        if self.context:
+            return f"""
+            <context>
+            {self.context}
+            </context>
+            <chunk>
+            {self.content}
+            </chunk>
+            """
+        return self.content
 
     @property
     def generic_record(self) -> GenericRecord:
         return GenericRecord(
             id=self.id,
-            unembedded_content=self.content_with_context,
+            unembedded_content=self.content,
             metadata=self.metadata,
         )

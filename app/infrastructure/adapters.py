@@ -1,6 +1,6 @@
 from app.domain.ports.git_client import GitClient
-from app.domain.model.git_repo import GitRepo
+from app.infrastructure.settings import Settings
 
 class GithubGitClient(GitClient):
-    def generate_url(self, owner: str, repo_name: str, token: str, **kwargs) -> str:
-        return f"https://{token}@github.com/{owner}/{repo_name}.git"
+    def generate_url(self, owner: str, repo_name: str, settings: Settings, **kwargs) -> str:
+        return f"https://{settings.github_token}@github.com/{owner}/{repo_name}.git"

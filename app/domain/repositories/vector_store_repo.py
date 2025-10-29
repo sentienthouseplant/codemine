@@ -18,3 +18,7 @@ class VectorStoreRepo(ABC):
     @abstractmethod
     def search_chunks(self, query: str) -> list[CodeChunk]:
         pass
+
+    @abstractmethod
+    def embed_and_add_chunks(self, chunks: list[CodeChunk]):
+        pass
