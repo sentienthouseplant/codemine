@@ -1,6 +1,20 @@
 from app.domain.ports.git_client import GitClient
 from app.infrastructure.settings import Settings
+from app.domain.ports.embedding_client import EmbeddingClient
+from app.domain.value_objects import GenericRecord, EmbeddedRecord
 
 class GithubGitClient(GitClient):
-    def generate_url(self, owner: str, repo_name: str, settings: Settings, **kwargs) -> str:
-        return f"https://{settings.github_token}@github.com/{owner}/{repo_name}.git"
+    def __init__(self, token: str):
+        self.token = token
+
+    def generate_url(self, owner: str, repo_name: str, *args, **kwargs) -> str:
+        return f"https://{self.token}@github.com/{owner}/{repo_name}.git"
+
+class ConstantEmbeddingClient(EmbeddingClient):
+    def embed_generic_record(self, record: GenericRecord, *args, **kwargs) -> EmbeddedRecord:
+        return EmbeddedRecord(
+            id=record.id,
+            unembedded_content=record.unembedded_content,
+            embedded_content=[0.5] * 1024,
+            metadata=record.metadata,
+        )

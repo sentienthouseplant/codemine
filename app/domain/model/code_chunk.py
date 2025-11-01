@@ -11,14 +11,14 @@ class CodeChunk(pydantic.BaseModel):
 
     @property
     def id(self):
-        return f"{self.repo_owner}#{self.repo_name}#{self.file_path}-test123#{self.index}"
+        return f"{self.repo_owner}#{self.repo_name}#{self.file_path}#{self.index}"
 
     @property
     def metadata(self):
         return {
             "repo_owner": self.repo_owner,
             "repo_name": self.repo_name,
-            "file_path": f"{self.file_path}-test123",
+            "file_path": self.file_path,
             "index": self.index,
         }
 

@@ -4,6 +4,7 @@ from app.infrastructure.settings import Settings
 from openai import OpenAI
 from app.domain.services.context_enrichment_service import ContextEnrichmentService
 from app.infrastructure.pinecone_vector_store import PineconeVectorStore
+from app.infrastructure.adapters import ConstantEmbeddingClient
 
 
 settings = Settings()
@@ -20,15 +21,15 @@ chunking_service = CodeChunkingService()
 enriched_documents = []
 with github_client.temporary_clone("sentienthouseplant", "purplepipes", settings) as repo:
     for document in chunking_service.walk_directory(repo):
-        print(document.file_path)
-        # chunked_document = chunking_service.chunk_document(document)
-        # context_enrichment_service = ContextEnrichmentService()
-        # enriched_document = context_enrichment_service.enrich_document(openai_client, chunked_document)
-        # enriched_documents.append(enriched_document)
+        chunked_document = chunking_service.chunk_document(document)
+        context_enrichment_service = ContextEnrichmentService()
+        enriched_document = context_enrichment_service.enrich_document(openai_client, chunked_document)
+        enriched_documents.append(enriched_document)
 
 
+pinecone_vector_store = PineconeVectorStore(index_name="code-chunks-test-2", settings=settings)
+pinecone_vector_store.create_index_if_not_exists()
 
-# pinecone_vector_store = PineconeVectorStore(index_name="code-chunks-test", settings=settings)
-# print(enriched_documents[0].model_dump_json(indent=2))
-# pinecone_vector_store.create_index_if_not_exists()
 
+for enriched_document in enriched_documents:    
+    pinecone_vector_store.embed_and_insert_records([chunk.generic_record for chunk in enriched_document.chunks])

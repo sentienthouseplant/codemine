@@ -2,7 +2,9 @@ from app.domain.repositories.vector_store_repo import VectorIndexRepo
 from app.domain.value_objects import GenericRecord, EmbeddedRecord
 from app.infrastructure.settings import Settings
 from pinecone import Pinecone
+import structlog
 
+logger = structlog.get_logger()
 
 class PineconeVectorStore(VectorIndexRepo):
     def __init__(
@@ -21,6 +23,7 @@ class PineconeVectorStore(VectorIndexRepo):
     def create_index_if_not_exists(self):
         """Create Pinecone index if it doesn't exist (from embedder.py lines 16-27)"""
         if not self._has_index:
+            logger.bind(index_name=self.index_name).info("Creating Pinecone index")
             self.pc.create_index_for_model(
                 name=self.index_name,
                 cloud="aws",
@@ -43,6 +46,9 @@ class PineconeVectorStore(VectorIndexRepo):
         """Insert already-embedded vectors into Pinecone"""
         # Convert EmbeddedRecord to Pinecone format
         pinecone_records = self.convert_embedded_records_to_pinecone_vectors(records)
+        if len(pinecone_records) == 0:
+            logger.info("No pinecone records to insert")
+            return
         self.index.upsert(
             namespace=self.namespace,
             vectors=pinecone_records
@@ -57,13 +63,13 @@ class PineconeVectorStore(VectorIndexRepo):
         pinecone_records = self.convert_generic_records_to_pinecone_records(records)
 
         if len(pinecone_records) == 0:
+            logger.info("No pinecone records to insert")
             return
 
+        logger.bind(pinecone_records=len(pinecone_records)).info("Inserting pinecone records")
         # Pinecone will automatically embed using the configured model
         self.index.upsert_records(
-            namespace=self.namespace,
-            records=pinecone_records,
-        )
+            namespace=self.namespace, records=pinecone_records)
 
     def get_current_files_embedded(self, repo_owner: str, repo_name: str) -> list[str]:
         """

@@ -1,8 +1,10 @@
 from string import Template
 from openai import OpenAI
 from app.domain.model.code_document import ChunkedDocument
+import structlog
 
 
+logger = structlog.get_logger()
 CONTEXT_PROMPT = Template("""
 Here is the chunk we want to situate within the document given.
 <chunk> 
@@ -25,9 +27,11 @@ class ContextEnrichmentService:
         Enriches each chunk with context from the LLM.
         Returns a new ChunkedDocument with new chunks that have context set.
         """
+        logger.bind(document=document.file_path).info("Enriching document")
         enriched_chunks = []
         
         for chunk in document.chunks:
+            logger.bind(chunk=chunk.file_path, index=chunk.index).info("Enriching chunk")
             response = client.chat.completions.create(
                 model="google/gemini-2.5-flash-lite-preview-09-2025",
                 messages=[
