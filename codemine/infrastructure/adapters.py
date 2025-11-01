@@ -1,7 +1,7 @@
-from app.domain.ports.git_client import GitClient
-from app.infrastructure.settings import Settings
-from app.domain.ports.embedding_client import EmbeddingClient
-from app.domain.value_objects import GenericRecord, EmbeddedRecord
+from codemine.domain.ports.git_client import GitClient
+from codemine.infrastructure.settings import Settings
+from codemine.domain.ports.embedding_client import EmbeddingClient
+from codemine.domain.value_objects import GenericRecord, EmbeddedRecord
 
 class GithubGitClient(GitClient):
     def __init__(self, token: str):

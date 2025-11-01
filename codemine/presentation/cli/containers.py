@@ -1,12 +1,12 @@
-from app.infrastructure.settings import Settings
+from codemine.infrastructure.settings import Settings
 from openai import OpenAI
-from app.domain.ports.git_client import GitClient
-from app.infrastructure.adapters import GithubGitClient
-from app.domain.repositories.vector_store_repo import VectorIndexRepo
-from app.infrastructure.pinecone_vector_store import PineconeVectorStore
-from app.domain.services.code_chunking_service import CodeChunkingService
-from app.domain.services.context_enrichment_service import ContextEnrichmentService
-from app.application.use_cases.embed_git_repo import EmbedGitRepoUseCase
+from codemine.domain.ports.git_client import GitClient
+from codemine.infrastructure.adapters import GithubGitClient
+from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
+from codemine.infrastructure.pinecone_vector_store import PineconeVectorStore
+from codemine.domain.services.code_chunking_service import CodeChunkingService
+from codemine.domain.services.context_enrichment_service import ContextEnrichmentService
+from codemine.application.use_cases.embed_git_repo import EmbedGitRepoUseCase
 
 def get_settings() -> Settings:
     return Settings()

@@ -1,5 +1,5 @@
 [project]
-name = "codebase-embedding"
+name = "codemine"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -19,5 +19,9 @@ dependencies = [
     "tree-sitter-typescript>=0.23.2",
 ]
 
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project.scripts]
-codebase-embedding = "app.presentation.cli.main:cli"
+codemine = "codemine.presentation.cli.main:main"

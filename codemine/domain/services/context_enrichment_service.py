@@ -1,6 +1,6 @@
 from string import Template
 from openai import OpenAI
-from app.domain.model.code_document import ChunkedDocument
+from codemine.domain.model.code_document import ChunkedDocument
 import structlog
 
 

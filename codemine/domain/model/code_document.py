@@ -1,7 +1,7 @@
 import pydantic
 
-from app.domain.value_objects import CodeDocumentContent
-from app.domain.model.code_chunk import CodeChunk
+from codemine.domain.value_objects import CodeDocumentContent
+from codemine.domain.model.code_chunk import CodeChunk
 
 
 class CodeDocument(pydantic.BaseModel):

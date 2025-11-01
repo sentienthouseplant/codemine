@@ -2,7 +2,7 @@ from typing import Protocol
 from contextlib import contextmanager
 import tempfile
 import git
-from app.domain.value_objects import GitDirectory
+from codemine.domain.value_objects import GitDirectory
 import structlog
 
 logger = structlog.get_logger()

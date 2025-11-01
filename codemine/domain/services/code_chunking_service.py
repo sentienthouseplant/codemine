@@ -2,12 +2,12 @@ import tree_sitter_python
 import tree_sitter_hcl
 import tree_sitter_typescript
 import tree_sitter_javascript
-from app.domain.model.code_document import ChunkedDocument, CodeDocument
+from codemine.domain.model.code_document import ChunkedDocument, CodeDocument
 from semantic_text_splitter import CodeSplitter, TextSplitter
 import os
 from typing import Generator, Literal
-from app.domain.value_objects import GitDirectory
-from app.domain.model.code_chunk import CodeChunk
+from codemine.domain.value_objects import GitDirectory
+from codemine.domain.model.code_chunk import CodeChunk
 
 
 class CodeChunkingService:

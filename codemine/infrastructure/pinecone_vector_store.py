@@ -1,6 +1,6 @@
-from app.domain.repositories.vector_store_repo import VectorIndexRepo
-from app.domain.value_objects import GenericRecord, EmbeddedRecord
-from app.infrastructure.settings import Settings
+from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
+from codemine.domain.value_objects import GenericRecord, EmbeddedRecord
+from codemine.infrastructure.settings import Settings
 from pinecone import Pinecone
 import structlog
 

@@ -1,6 +1,6 @@
 import pydantic
 
-from app.domain.value_objects import GenericRecord
+from codemine.domain.value_objects import GenericRecord
 class CodeChunk(pydantic.BaseModel):
     content: str
     context: str | None = None

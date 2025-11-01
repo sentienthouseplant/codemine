@@ -4,13 +4,13 @@ from openai import OpenAI
 
 import structlog
 
-from app.application.commands import ProcessRepoCommand
-from app.domain.model.code_document import ChunkedDocument
-from app.domain.ports.git_client import GitClient
-from app.domain.repositories.vector_store_repo import VectorIndexRepo
-from app.domain.services.code_chunking_service import CodeChunkingService
-from app.domain.services.context_enrichment_service import ContextEnrichmentService
-from app.domain.value_objects import GenericRecord, GitDirectory
+from codemine.application.commands import ProcessRepoCommand
+from codemine.domain.model.code_document import ChunkedDocument
+from codemine.domain.ports.git_client import GitClient
+from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
+from codemine.domain.services.code_chunking_service import CodeChunkingService
+from codemine.domain.services.context_enrichment_service import ContextEnrichmentService
+from codemine.domain.value_objects import GenericRecord, GitDirectory
 
 logger = structlog.get_logger()
 
