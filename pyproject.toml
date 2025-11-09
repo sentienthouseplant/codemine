@@ -12,6 +12,7 @@ dependencies = [
     "pinecone>=7.3.0",
     "pydantic>=2.12.3",
     "pydantic-settings>=2.11.0",
+    "rich>=14.2.0",
     "semantic-text-splitter>=0.28.0",
     "structlog>=25.5.0",
     "tree-sitter-hcl>=1.2.0",

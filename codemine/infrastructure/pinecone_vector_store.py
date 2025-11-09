@@ -186,6 +186,8 @@ class PineconeVectorStore(VectorIndexRepo):
             record_metadata = {
                 "repo_owner": fields.get("repo_owner", ""),
                 "repo_name": fields.get("repo_name", ""),
+                "file_path": fields.get("file_path", ""),
+                "index": fields.get("index", ""),
             }
             
             # Include score if available
@@ -201,3 +203,13 @@ class PineconeVectorStore(VectorIndexRepo):
             )
         
         return generic_records
+
+    def convert_generic_records_to_pinecone_records(self, records: list[GenericRecord]) -> list[dict]:
+        return [
+            {
+                "id": record.id,
+                **record.metadata,
+                "code_with_context": record.unembedded_content,
+            }
+            for record in records
+        ]
