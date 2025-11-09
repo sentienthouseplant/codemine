@@ -1,10 +1,11 @@
+import structlog
+
 from codemine.application.queries import SearchEmbeddingsQuery
 from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
 from codemine.domain.value_objects import EmbeddedRecord
 
-import structlog
-
 logger = structlog.get_logger()
+
 
 class SearchChunksUseCase:
     def __init__(self, vector_store: VectorIndexRepo):

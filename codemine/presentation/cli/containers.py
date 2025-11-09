@@ -1,16 +1,19 @@
-from codemine.infrastructure.settings import Settings
 from openai import OpenAI
-from codemine.domain.ports.git_client import GitClient
-from codemine.infrastructure.adapters import GithubGitClient
-from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
-from codemine.infrastructure.pinecone_vector_store import PineconeVectorStore
-from codemine.domain.services.code_chunking_service import CodeChunkingService
-from codemine.domain.services.context_enrichment_service import ContextEnrichmentService
+
 from codemine.application.use_cases.embed_git_repo import EmbedGitRepoUseCase
 from codemine.application.use_cases.search_chunks import SearchChunksUseCase
+from codemine.domain.ports.git_client import GitClient
+from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
+from codemine.domain.services.code_chunking_service import CodeChunkingService
+from codemine.domain.services.context_enrichment_service import ContextEnrichmentService
+from codemine.infrastructure.adapters import GithubGitClient
+from codemine.infrastructure.pinecone_vector_store import PineconeVectorStore
+from codemine.infrastructure.settings import Settings
+
 
 def get_settings() -> Settings:
     return Settings()
+
 
 def get_openai_client() -> OpenAI:
     settings = get_settings()
@@ -19,11 +22,13 @@ def get_openai_client() -> OpenAI:
         api_key=settings.openai_api_key,
     )
 
+
 def get_git_client() -> GitClient:
     settings = get_settings()
     return GithubGitClient(
         token=settings.github_token,
     )
+
 
 def get_vector_store() -> VectorIndexRepo:
     settings = get_settings()
@@ -32,11 +37,14 @@ def get_vector_store() -> VectorIndexRepo:
         settings=settings,
     )
 
+
 def get_code_chunking_service() -> CodeChunkingService:
     return CodeChunkingService()
 
+
 def get_context_enrichment_service() -> ContextEnrichmentService:
     return ContextEnrichmentService()
+
 
 def get_embed_git_repo_use_case() -> EmbedGitRepoUseCase:
     return EmbedGitRepoUseCase(
@@ -46,6 +54,7 @@ def get_embed_git_repo_use_case() -> EmbedGitRepoUseCase:
         vector_store=get_vector_store(),
         openai_client=get_openai_client(),
     )
+
 
 def get_search_chunks_use_case() -> SearchChunksUseCase:
     return SearchChunksUseCase(

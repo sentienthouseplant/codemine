@@ -1,7 +1,9 @@
-import pydantic
-from contextlib import contextmanager
-import git
 import tempfile
+from contextlib import contextmanager
+
+import git
+import pydantic
+
 
 class GitRepo(pydantic.BaseModel):
     owner: str

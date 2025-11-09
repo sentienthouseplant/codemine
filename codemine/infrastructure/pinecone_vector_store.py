@@ -1,12 +1,14 @@
-from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
-from codemine.domain.value_objects import GenericRecord, EmbeddedRecord
-from codemine.infrastructure.settings import Settings
-from pinecone import Pinecone
-import structlog
 from functools import cached_property
 
+import structlog
+from pinecone import Pinecone
+
+from codemine.domain.repositories.vector_store_repo import VectorIndexRepo
+from codemine.domain.value_objects import EmbeddedRecord, GenericRecord
+from codemine.infrastructure.settings import Settings
 
 logger = structlog.get_logger()
+
 
 class PineconeVectorStore(VectorIndexRepo):
     def __init__(
@@ -37,7 +39,6 @@ class PineconeVectorStore(VectorIndexRepo):
             )
             self._has_index = True
 
-
     @property
     def index_host(self) -> str:
         """Get the host of the index."""
@@ -61,10 +62,7 @@ class PineconeVectorStore(VectorIndexRepo):
         if len(pinecone_records) == 0:
             logger.info("No pinecone records to insert")
             return
-        self.index.upsert(
-            namespace=self.namespace,
-            vectors=pinecone_records
-        )
+        self.index.upsert(namespace=self.namespace, vectors=pinecone_records)
 
     def embed_and_insert_records(self, records: list[GenericRecord]):
         """
@@ -78,10 +76,11 @@ class PineconeVectorStore(VectorIndexRepo):
             logger.info("No pinecone records to insert")
             return
 
-        logger.bind(pinecone_records=len(pinecone_records)).info("Inserting pinecone records")
+        logger.bind(pinecone_records=len(pinecone_records)).info(
+            "Inserting pinecone records"
+        )
         # Pinecone will automatically embed using the configured model
-        self.index.upsert_records(
-            namespace=self.namespace, records=pinecone_records)
+        self.index.upsert_records(namespace=self.namespace, records=pinecone_records)
 
     def get_current_files_embedded(self, repo_owner: str, repo_name: str) -> list[str]:
         """
@@ -89,31 +88,27 @@ class PineconeVectorStore(VectorIndexRepo):
         """
         current_files = []
         chunks = []
-        
+
         # List all chunk IDs for this repo
         current_repo_chunk_ids = self.index.list(
-            prefix=f"{repo_owner}#{repo_name}#",
-            namespace=self.namespace
+            prefix=f"{repo_owner}#{repo_name}#", namespace=self.namespace
         )
-        
+
         # Collect all chunk IDs from paginated results
         for chunk_id_page in current_repo_chunk_ids:
             chunks.extend(chunk_id_page)
-        
+
         # Extract unique file paths from chunk IDs
         # ID format: owner#repo#file_path#index
         for chunk_id in chunks:
             file_path = chunk_id.split("#")[-2]
             if file_path not in current_files:
                 current_files.append(file_path)
-        
+
         return current_files
 
     def remove_vectors_by_file_path(
-        self,
-        file_path: str,
-        repo_owner: str,
-        repo_name: str
+        self, file_path: str, repo_owner: str, repo_name: str
     ) -> bool:
         """
         Remove all chunks for a specific file
@@ -124,8 +119,8 @@ class PineconeVectorStore(VectorIndexRepo):
                 filter={
                     "file_path": {"$eq": file_path},
                     "repo_owner": {"$eq": repo_owner},
-                    "repo_name": {"$eq": repo_name}
-                }
+                    "repo_name": {"$eq": repo_name},
+                },
             )
             return True
         except Exception as e:
@@ -137,31 +132,31 @@ class PineconeVectorStore(VectorIndexRepo):
         # Query the index with Pinecone's inference API using the new format
         results = self.index.search(
             namespace=self.namespace,
-            query={
-                "inputs": {"text": query},
-                "top_k": top_k
-            },
+            query={"inputs": {"text": query}, "top_k": top_k},
             fields=["code_with_context", "repo_owner", "repo_name"],
         )
 
         # Convert Pinecone search results to GenericRecord format
-        hits = results.get('result', {}).get('hits', [])
+        hits = results.get("result", {}).get("hits", [])
         generic_records = self.convert_pinecone_search_results_to_generic_records(hits)
-        
+
         return generic_records
 
-
-    def convert_embedded_records_to_pinecone_vectors(self, records: list[EmbeddedRecord]) -> list[dict]:
+    def convert_embedded_records_to_pinecone_vectors(
+        self, records: list[EmbeddedRecord]
+    ) -> list[dict]:
         return [
             {
                 "id": record.id,
-                "metadata" : record.metadata,
+                "metadata": record.metadata,
                 "values": record.embedded_content,
             }
             for record in records
         ]
-    
-    def convert_embedded_records_to_generic_records(self, records: list[EmbeddedRecord]) -> list[GenericRecord]:
+
+    def convert_embedded_records_to_generic_records(
+        self, records: list[EmbeddedRecord]
+    ) -> list[GenericRecord]:
         return [
             GenericRecord(
                 id=record.id,
@@ -170,18 +165,20 @@ class PineconeVectorStore(VectorIndexRepo):
             )
             for record in records
         ]
-    
-    def convert_pinecone_search_results_to_generic_records(self, results: list[dict]) -> list[GenericRecord]:
+
+    def convert_pinecone_search_results_to_generic_records(
+        self, results: list[dict]
+    ) -> list[GenericRecord]:
         """Convert Pinecone search results to GenericRecord format"""
         generic_records = []
         for hit in results:
             # Extract fields from Pinecone search result
             # Hit format: {"_id": "...", "_score": ..., "fields": {...}}
             fields = hit.get("fields", {})
-            
+
             # Extract content from fields
             unembedded_content = fields.get("code_with_context", "")
-            
+
             # Build metadata from fields and score
             record_metadata = {
                 "repo_owner": fields.get("repo_owner", ""),
@@ -189,11 +186,11 @@ class PineconeVectorStore(VectorIndexRepo):
                 "file_path": fields.get("file_path", ""),
                 "index": fields.get("index", ""),
             }
-            
+
             # Include score if available
             if "_score" in hit:
                 record_metadata["score"] = hit.get("_score")
-            
+
             generic_records.append(
                 GenericRecord(
                     id=hit.get("_id", ""),
@@ -201,10 +198,12 @@ class PineconeVectorStore(VectorIndexRepo):
                     metadata=record_metadata,
                 )
             )
-        
+
         return generic_records
 
-    def convert_generic_records_to_pinecone_records(self, records: list[GenericRecord]) -> list[dict]:
+    def convert_generic_records_to_pinecone_records(
+        self, records: list[GenericRecord]
+    ) -> list[dict]:
         return [
             {
                 "id": record.id,
