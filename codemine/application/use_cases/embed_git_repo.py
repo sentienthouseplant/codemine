@@ -41,12 +41,13 @@ class EmbedGitRepoUseCase:
             repo_name=command.repo_name,
         ) as git_directory:
             logger.info("Chunking repository")
-            chunked_documents = list(self._chunk_repository(git_directory))
+            chunked_documents = self._chunk_repository(git_directory)
             logger.info("Enriching documents")
-            enriched_documents = [
-                self.context_enrichment_service.enrich_document(self.openai_client, doc)
-                for doc in chunked_documents
-            ]
+            enriched_documents = []
+            for document in chunked_documents:
+                logger.bind(document=document.file_path).info("Enriching document")
+                enriched_document = self.context_enrichment_service.enrich_document(self.openai_client, document)
+                enriched_documents.append(enriched_document)
 
         logger.info("Building records")
         records = self._build_records(enriched_documents)

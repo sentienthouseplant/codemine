@@ -8,6 +8,9 @@ import os
 from typing import Generator, Literal
 from codemine.domain.value_objects import GitDirectory
 from codemine.domain.model.code_chunk import CodeChunk
+from structlog import get_logger
+
+logger = get_logger()
 
 
 class CodeChunkingService:
@@ -30,7 +33,9 @@ class CodeChunkingService:
     def walk_directory(self, git_directory: GitDirectory) -> Generator[CodeDocument, None, None]:
         for root, _, files in os.walk(git_directory.path):
             for file in files:
-                if file.endswith(tuple(self._langauge_registry.keys())):
+                logger.bind(file=file).info("Checking file")
+                if file.split(".")[-1] in self._langauge_registry.keys():
+                    logger.bind(file=file).info("File is a code file")
                     file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, git_directory.path)
                     with open(file_path, "r", encoding="utf-8") as f:
