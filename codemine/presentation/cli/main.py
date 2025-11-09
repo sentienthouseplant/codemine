@@ -6,7 +6,6 @@ import structlog
 from rich.console import Console
 import logging
 
-
 # structlog.configure(
 #     wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING)
 # )
@@ -18,12 +17,15 @@ def cli(): ...
 @click.option("--repo-owner", type=str, required=True)
 @click.option("--repo-name", type=str, required=True)
 @click.option("--remove-outdated-chunks", is_flag=True, default=False)
-def embed_repo(repo_owner, repo_name, remove_outdated_chunks):
+@click.option("--ignore-globs", type=str, multiple=True, default=[])
+@click.option("--create-index", is_flag=True, default=False)
+def embed_repo(repo_owner, repo_name, remove_outdated_chunks, create_index, ignore_globs):
     use_case = get_embed_git_repo_use_case()
     console = Console()
     with console.status("Embedding repository...", spinner="squareCorners"):
         results = use_case.execute(ProcessRepoCommand(
             repo_owner=repo_owner, repo_name=repo_name, remove_outdated_chunks=remove_outdated_chunks,
+            create_index=create_index, ignore_globs=ignore_globs
         ))
         console.print(f"Repository {repo_owner}/{repo_name} embedded successfully")
         console.print(f"Total chunks: {results['total_chunks']}")

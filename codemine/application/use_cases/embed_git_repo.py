@@ -40,12 +40,14 @@ class EmbedGitRepoUseCase:
         logger.info("Cloning repository")
         enriched_documents: list[ChunkedDocument] = []
         total_chunks = 0
+        if command.create_index:
+            self.vector_store.create_index_if_not_exists()
         with self.git_client.temporary_clone(
             owner=command.repo_owner,
             repo_name=command.repo_name,
         ) as git_directory:
             logger.info("Chunking repository")
-            chunked_documents = self._chunk_repository(git_directory)
+            chunked_documents = self._chunk_repository(git_directory, command.ignore_globs)
             logger.info("Enriching documents")
             for enriched_batch in self._enrich_documents_in_batches(
                 chunked_documents,
@@ -63,8 +65,8 @@ class EmbedGitRepoUseCase:
             "index_name": self.vector_store.index_name,
         }
 
-    def _chunk_repository(self, git_directory: GitDirectory) -> Iterable[ChunkedDocument]:
-        for document in self.code_chunking_service.walk_directory(git_directory):
+    def _chunk_repository(self, git_directory: GitDirectory, ignore_globs: list[str] = []) -> Iterable[ChunkedDocument]:
+        for document in self.code_chunking_service.walk_directory(git_directory, ignore_globs):
             yield self.code_chunking_service.chunk_document(document)
 
     def _enrich_documents_in_batches(

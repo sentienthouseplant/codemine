@@ -9,9 +9,11 @@ from typing import Generator, Literal
 from codemine.domain.value_objects import GitDirectory
 from codemine.domain.model.code_chunk import CodeChunk
 from structlog import get_logger
+import fnmatch
 
 logger = get_logger()
 
+CHUNK_SIZE_RANGE = (500, 5000)
 
 class CodeChunkingService:
 
@@ -30,13 +32,16 @@ class CodeChunkingService:
         else:
             self.splitter = TextSplitter
 
-    def walk_directory(self, git_directory: GitDirectory) -> Generator[CodeDocument, None, None]:
+    def walk_directory(self, git_directory: GitDirectory, ignore_globs: list[str] = []) -> Generator[CodeDocument, None, None]:
         for root, _, files in os.walk(git_directory.path):
             for file in files:
+                file_path = os.path.join(root, file)
+                if any(fnmatch.fnmatch(file_path, ignore_glob) for ignore_glob in ignore_globs):
+                    logger.bind(file=file).info("File is ignored by glob pattern")
+                    continue
                 logger.bind(file=file).info("Checking file")
                 if file.split(".")[-1] in self._langauge_registry.keys():
                     logger.bind(file=file).info("File is a code file")
-                    file_path = os.path.join(root, file)
                     relative_path = os.path.relpath(file_path, git_directory.path)
                     with open(file_path, "r", encoding="utf-8") as f:
                         code = f.read()
@@ -50,7 +55,7 @@ class CodeChunkingService:
                         )
 
     def chunk_document(self, document: CodeDocument) -> ChunkedDocument:
-        splitter = CodeSplitter(self._langauge_registry[document.file_type], 500)
+        splitter = CodeSplitter(self._langauge_registry[document.file_type], CHUNK_SIZE_RANGE)
         chunks = splitter.chunk_indices(document.content)
         chunks = [
             CodeChunk(index=index, content=text, file_path=document.file_path, repo_owner=document.repo_owner, repo_name=document.repo_name) for index, text in chunks
