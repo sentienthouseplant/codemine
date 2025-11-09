@@ -7,25 +7,21 @@ from codemine.domain.model.code_document import ChunkedDocument
 
 logger = structlog.get_logger()
 CONTEXT_PROMPT = Template(
-    
-        "Here is the chunk we want to situate within the document given.\n"
-        "<chunk>\n"
-        "$chunk\n"
-        "</chunk>\n"
-        "Provide a short context to situate this chunk within the overall "
-        "document to improve search retrieval of the chunk. Answer only with the "
-        "succinct context and nothing else.\n"
-    
+    "Here is the chunk we want to situate within the document given.\n"
+    "<chunk>\n"
+    "$chunk\n"
+    "</chunk>\n"
+    "Provide a short context to situate this chunk within the overall "
+    "document to improve search retrieval of the chunk. Answer only with the "
+    "succinct context and nothing else.\n"
 )
 
 DOCUMENT_PROMPT = Template(
-    
-        "Here is the document the user will chunk. "
-        "Use this document to generate the context for the chunk:\n"
-        "<document>\n"
-        "$document\n"
-        "</document>\n"
-    
+    "Here is the document the user will chunk. "
+    "Use this document to generate the context for the chunk:\n"
+    "<document>\n"
+    "$document\n"
+    "</document>\n"
 )
 
 
