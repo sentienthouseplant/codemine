@@ -7,6 +7,7 @@ from codemine.infrastructure.pinecone_vector_store import PineconeVectorStore
 from codemine.domain.services.code_chunking_service import CodeChunkingService
 from codemine.domain.services.context_enrichment_service import ContextEnrichmentService
 from codemine.application.use_cases.embed_git_repo import EmbedGitRepoUseCase
+from codemine.application.use_cases.search_chunks import SearchChunksUseCase
 
 def get_settings() -> Settings:
     return Settings()
@@ -44,4 +45,9 @@ def get_embed_git_repo_use_case() -> EmbedGitRepoUseCase:
         context_enrichment_service=get_context_enrichment_service(),
         vector_store=get_vector_store(),
         openai_client=get_openai_client(),
+    )
+
+def get_search_chunks_use_case() -> SearchChunksUseCase:
+    return SearchChunksUseCase(
+        vector_store=get_vector_store(),
     )

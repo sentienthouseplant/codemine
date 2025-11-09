@@ -36,7 +36,7 @@ class VectorIndexRepo(ABC):
         pass
 
     @abstractmethod
-    def search_vectors(self, query: str) -> list[EmbeddedRecord]:
+    def search_vectors(self, query: str) -> list[GenericRecord]:
         pass
 
     def embed_and_insert_records(self, records: list[GenericRecord]):
