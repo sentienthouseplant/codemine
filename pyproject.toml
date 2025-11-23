@@ -1,16 +1,50 @@
 [project]
-name = "codebase-embedding"
+name = "codemine"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "click>=8.3.0",
     "code-splitter>=0.1.5",
     "gitpython>=3.1.45",
     "openai>=2.6.1",
     "pinecone>=7.3.0",
     "pydantic>=2.12.3",
     "pydantic-settings>=2.11.0",
+    "rich>=14.2.0",
     "semantic-text-splitter>=0.28.0",
+    "structlog>=25.5.0",
+    "tree-sitter-hcl>=1.2.0",
+    "tree-sitter-javascript>=0.25.0",
+    "tree-sitter-markdown>=0.5.1",
     "tree-sitter-python>=0.25.0",
+    "tree-sitter-rust>=0.24.0",
+    "tree-sitter-typescript>=0.23.2",
+    "tree-sitter-yaml>=0.7.2",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.4",
+]
+
+[project.scripts]
+codemine = "codemine.presentation.cli.main:cli"
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "UP",
+    "B",
+    "SIM",
+    "I",
 ]
